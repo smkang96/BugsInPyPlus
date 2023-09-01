@@ -29,6 +29,7 @@ usage="
 dir_of_script=$(dirname $0)
 bugsinpy_location=$(realpath $dir_of_script/../..)
 temp_projects="$bugsinpy_location/temp/projects"
+backup_dir="$bugsinpy_location/backup/projects"
 index_name="bugsinpy-index.csv"
 index_file="$bugsinpy_location/projects/$index_name"
 
@@ -45,6 +46,7 @@ case $1 in
 esac
 
 mkdir -p $temp_projects
+mkdir -p $backup_dir
 
 if ! echo $projects | grep -q ":"; then
   projects=$(ls $bugsinpy_location/projects | grep -v $index_name)
@@ -97,6 +99,10 @@ for project_name in $projects; do
         fi
 
         bugsinpy-checkout -p $project -v $version_id -i $bug -w $temp_projects &>> $temp_projects/$project-checkout-logs.txt
+        bug_backup_dir="${backup_dir}/${project}_${bug}"
+        if [[ $version_id == "0" ]]; then
+          cp -r $work_dir ${bug_backup_dir}
+        fi
         cd $work_dir
 
         # Cleanup requirements.txt from unwanted spaces
@@ -117,6 +123,13 @@ for project_name in $projects; do
 
         bugsinpy-compile &>> $work_dir/logs.txt
         bugsinpy-test &> "$bug_source_dir/bug_$version.txt"
+
+        if [[ $version_id == "0" ]]; then
+          bugsinpy-coverage
+          cp ${work_dir}/coverage_*.json ${bug_backup_dir}
+          cp ${work_dir}/coverage_bugsinpy.txt ${bug_backup_dir}
+        fi
+        
 
         # Check for keywords in test output
         # buggy (0) expected to fail
