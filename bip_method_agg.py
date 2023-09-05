@@ -113,6 +113,9 @@ if __name__ == '__main__':
 
         # save gathered information
         save_dir = os.path.join(DATA_DIR, bug_name)
+        if not os.path.isfile(os.path.join(save_dir, 'snippet.json')):
+            print('WARNING: no snippet file detected for', bug_name)
+            continue
         with open(os.path.join(save_dir, 'snippet.json')) as f:
             init_snip_objs = json.load(f)
         new_snip_objs = []
