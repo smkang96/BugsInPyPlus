@@ -59,7 +59,8 @@ def get_susp_info(suspiciousness_file, fix_locs):
             except:
                 print(f"{file_name} could not be parsed!")
                 continue
-            func_nodes = [e for e in ast.walk(root_ast) if isinstance(e, ast.FunctionDef)]
+            func_nodes = [e for e in ast.walk(root_ast) 
+                          if (isinstance(e, ast.FunctionDef) or isinstance(e, ast.AsyncFunctionDef))]
             class_nodes = [e for e in ast.walk(root_ast) if isinstance(e, ast.ClassDef)]
         
         for covered_line in map(int, susp_obj[org_file_name]):

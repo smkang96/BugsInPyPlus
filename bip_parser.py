@@ -85,7 +85,8 @@ def get_coverage_info(coverage_file, seen_methods, need_to_gather_test_files):
             except:
                 print(f"{file_name} could not be parsed!")
                 continue
-            func_nodes = [e for e in ast.walk(root_ast) if isinstance(e, ast.FunctionDef)]
+            func_nodes = [e for e in ast.walk(root_ast) 
+                          if (isinstance(e, ast.FunctionDef) or isinstance(e, ast.AsyncFunctionDef))]
             class_nodes = [e for e in ast.walk(root_ast) if isinstance(e, ast.ClassDef)]
         
         for covered_line in exec_lines:
