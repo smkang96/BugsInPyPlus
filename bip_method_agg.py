@@ -38,6 +38,7 @@ def get_susp_info(suspiciousness_file, fix_locs):
     
     all_file_names = set(susp_obj.keys())
     for file_name in all_file_names:
+        org_file_name = file_name
         if 'ansible' in bug_name:
             file_name = file_name.replace('build/lib/', 'lib/')
         elif 'matplotlib' in bug_name:
@@ -61,7 +62,7 @@ def get_susp_info(suspiciousness_file, fix_locs):
             func_nodes = [e for e in ast.walk(root_ast) if isinstance(e, ast.FunctionDef)]
             class_nodes = [e for e in ast.walk(root_ast) if isinstance(e, ast.ClassDef)]
         
-        for covered_line in map(int, susp_obj[file_name]):
+        for covered_line in map(int, susp_obj[org_file_name]):
             encasing_functions = [e for e in func_nodes if e.lineno <= covered_line <= e.end_lineno]
             encasing_classes = [e for e in class_nodes if e.lineno <= covered_line <= e.end_lineno]
             if len(encasing_functions) == 0:
@@ -85,10 +86,10 @@ def get_susp_info(suspiciousness_file, fix_locs):
                 for key in filter(lambda x: 'pseudo' in x, method2susp[signature].keys()):
                     method2susp[signature][key] = max(
                         method2susp[signature][key],
-                        susp_obj[file_name][str(covered_line)][key]
+                        susp_obj[org_file_name][str(covered_line)][key]
                     )
             else:
-                method2susp[signature] = susp_obj[file_name][str(covered_line)]
+                method2susp[signature] = susp_obj[org_file_name][str(covered_line)]
     return method2susp
 
 if __name__ == '__main__':
