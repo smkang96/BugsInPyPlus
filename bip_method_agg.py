@@ -32,7 +32,7 @@ def get_changed_info(bug_name):
     return change_locs
 
 def get_susp_info(suspiciousness_file, fix_locs):
-    method2susp = defaultdict(lambda: 0)
+    method2susp = dict()
     with open(suspiciousness_file) as f:
         susp_obj = json.load(f) # file -> line -> susps
     
@@ -79,7 +79,7 @@ def get_susp_info(suspiciousness_file, fix_locs):
             func_cont = '\n'.join(file_code.split('\n')[innermost_func.lineno-1:innermost_func.end_lineno])
             is_bug = ((file_name in fix_locs) and 
                       any(innermost_func.lineno <= l <= innermost_func.end_lineno for l in fix_locs[file_name]))
-            signature = method_id.split('#')[0]+'('+ast.unparse(innermost_func.args)+')',
+            signature = method_id.split('#')[0]+'('+ast.unparse(innermost_func.args)+')'
             
             if signature in method2susp:
                 for key in filter(lambda x: 'pseudo' in x, method2susp[signature].keys()):
@@ -88,11 +88,7 @@ def get_susp_info(suspiciousness_file, fix_locs):
                         susp_obj[file_name][str(covered_line)][key]
                     )
             else:
-                method2susp[signature] = {
-                    'name': method_id,
-                    'src_path': file_name,
-                    'signature': signature,
-                } | susp_obj[file_name][str(covered_line)]
+                method2susp[signature] = susp_obj[file_name][str(covered_line)]
     return method2susp
 
 if __name__ == '__main__':
